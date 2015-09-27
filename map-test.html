@@ -2,12 +2,43 @@
 <html>
   <head>
     <style type="text/css">
-      html, body { height: 100%; margin: 0; padding: 0; }
+      html, body { height: 100%; margin: 0; padding: 0; background-color: #000000; }
       #map { height: 100%; }
+      .icon *{
+        width: 300px;
+        cursor: pointer;
+      }
+      .refresh-button{
+        width: 60px;
+        position: absolute;
+        vertical-align: middle;
+        right: 31px;
+        top: 17px;
+        cursor: pointer;
+      }
+      .refresh-button *{
+        cursor: pointer;
+      }
+
+      .refresh-text{
+        font-size: 14px;
+        font-family: monospace;
+        color: #59DB40;
+        display: inline-block;
+      }
     </style>
     <script src="https://cdn.firebase.com/js/client/2.3.0/firebase.js"></script>
+
   </head>
   <body>
+    <div id="header"> 
+      <div class="icon">
+        <a class="home-button" href="index.html"><img src="busstalker-white.png"></a>
+      </div>
+      <div class="refresh">
+      <a class="refresh-button" href="tracker.html"><img src="refresh.png"></a>
+      </div>
+    </div>
     <div id="map"></div>
     <script type="text/javascript">
 
