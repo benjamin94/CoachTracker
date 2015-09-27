@@ -111,13 +111,37 @@ body{
 html{
   background-color: #000000;
 }
-.icon{
+.icon *{
   width: 300px;
+  cursor: pointer;
+}
+.refresh-button{
+  width: 60px;
+  position: absolute;
+  vertical-align: middle;
+  right: 31px;
+  top: 17px;
+  cursor: pointer;
+}
+.refresh-button *{
+  cursor: pointer;
 }
 
-iframe{
+.refresh-text{
+  font-size: 14px;
+  font-family: monospace;
+  color: #59DB40;
+  display: inline-block;
+}
+
+/*iframe{
     min-width: 100%;
     min-height: 100%;
+}*/
+
+#map{
+  min-width: 100%;
+  min-height: 100%;
 }
 
 @media screen and (max-width:592px){
@@ -128,7 +152,7 @@ iframe{
     html{
         background-size: cover
     }
-    iframe{
+    map{
       max-width: 100%;
     }
 }

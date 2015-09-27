@@ -1,17 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<script src="https://cdn.firebase.com/js/client/2.3.0/firebase.js"></script>
+		<link href="mapstyle.css" type = "text/css" rel="stylesheet">
+		<link href="http://fonts.googleapis.com/css?family=Oleo+Script" rel="stylesheet" type="text/css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body> 
+		<div id="header"> 
+			<div class="icon">
+				<a class="home-button" href="index.html"><img src="busstalker-white.png"></a>
+			</div>
+			<div class="refresh">
+			<a class="refresh-button" href="tracker.html"><img src="refresh.png"></a>
+			</div>
+		</div>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- <iframe src="https://www.google.com/maps/embed?pb=!1m12!1m8!1m3!1d317796.1228655718!2d-0.1246295!3d51.5172115!3m2!1i1024!2i768!4f13.1!2m1!1sbus+center+london!5e0!3m2!1sen!2suk!4v1443292969605"frameborder="0" style="border:0" allowfullscreen></iframe> -->
+
+		<div id="map"></div>
+		<script type="text/javascript">
+
+		var lat_data, long_data; 
+		var dest_lat = 51.4931; 
+		var dest_long = -0.1486;
+
+		var latitude = new Firebase('https://bustalk.firebaseio.com/latitude');
+		var longitude = new Firebase('https://bustalk.firebaseio.com/longitude');
+		var message = new Firebase('https://bustalk.firebaseio.com/message');
 
 
-<link href="mapstyle.css" type = "text/css" rel="stylesheet">
-<link href="http://fonts.googleapis.com/css?family=Oleo+Script" rel="stylesheet" type="text/css">
+		function initMap(map_thing, latitude, longitude) { 
+		  map_thing = new google.maps.Map(document.getElementById('map'), {
+		    center: new google.maps.LatLng(latitude, longitude),
+		    zoom: 12
+		  });
+		  var marker = new google.maps.Marker({
+		    position: new google.maps.LatLng(dest_lat, dest_long), 
+		    map: map_thing,
+		    title: 'Victoria Coach Station'
+		  });
+		  var bus_location = new google.maps.Marker({
+		    position: new google.maps.LatLng(latitude, longitude), 
+		    map: map_thing,
+		    title: 'Current Location of Bus',
+		    icon: 'http://www.myrapid.com.my/sites/all/themes/myrapid/images/icon-bus-small.png'
+		  });
+		}
 
-<body> 
-<div id="header"> 
-	<div class="icon"><img src="busstalker-white.png"></div>
-	<div class="banner2"></div>
-</div>
+		var initMapFromValues = function(key, value) {
+		  if (key == 'latitude') lat_data = value; 
+		  else if (key == 'longitude') long_data = value;
+		  if (lat_data != null && long_data != null) { 
+		    var map;
+		    initMap(map, parseFloat(lat_data), parseFloat(long_data));
+		  }
+		}
+		latitude.on("value", function(snapshot) {
+		  console.log(snapshot.val());
+		  initMapFromValues('latitude', snapshot.val());
+		}, function (errorObject) {
+		  console.log("The read failed: " + errorObject.code);
+		});
 
-<iframe src="https://www.google.com/maps/embed?pb=!1m12!1m8!1m3!1d317796.1228655718!2d-0.1246295!3d51.5172115!3m2!1i1024!2i768!4f13.1!2m1!1sbus+center+london!5e0!3m2!1sen!2suk!4v1443292969605"frameborder="0" style="border:0" allowfullscreen></iframe>
-<body/>
+		longitude.on("value", function(snapshot) {
+		  console.log(snapshot.val());
+		  initMapFromValues('longitude', snapshot.val());
+		}, function (errorObject) {
+		  console.log("The read failed: " + errorObject.code);
+		});
+
+		message.on("value", function(snapshot) {
+		  console.log(snapshot.val());
+		}, function (errorObject) {
+		  console.log("The read failed: " + errorObject.code);
+		});
+		</script>
+		<script async defer
+		  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDoyWZEB625VA9TIjrul1mzOLGpJneAH0&callback=initMap">
+		</script>
+		</script>
+	</body>
+</html>

@@ -128,12 +128,6 @@ h1 .bustalk{
   margin: auto;
 }
 
-#main{
-    width: 500px;
-    height: 600px;
-    margin: 25px auto;
-}
-
 img{
     max-width: 100%;
 }
@@ -166,7 +160,7 @@ html{
 }
 
 .user_input{
-  margin-top: 60px;
+  margin-top: 80px;
   display: inline-block;
   vertical-align: middle;
 }
@@ -184,7 +178,6 @@ html{
   padding: 10px;
   display: block;
   margin-top: 15px;
-  max-width: 100%;
   cursor: pointer;
 }
 
@@ -202,8 +195,9 @@ html{
     }
     .btn {
         display: inline-block;
+        margin: auto;
         max-width:85%;
         padding: 3px 1em;
-        font-size:43px;
+        font-size:30px;
     }
 }
