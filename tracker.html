@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body { height: 100%; margin: 0; padding: 0; background-color: #000000; }
+      #map { height: 100%; }
+      .icon *{
+        width: 300px;
+        cursor: pointer;
+      }
+      .refresh-button{
+        width: 60px;
+        position: absolute;
+        vertical-align: middle;
+        right: 20px;
+        top: 17px;
+        cursor: pointer;
+      }
+      .refresh-button *{
+        cursor: pointer;
+      }
+
+      .refresh-text{
+        font-size: 14px;
+        font-family: monospace;
+        color: #59DB40;
+        display: inline-block;
+      }
+      .information{
+        color: #B4F09E;
+        display: inline-block;
+        position: absolute;
+        right: 95px;
+        top: 17px;
+        font-family: Arial;
+      }
+      #countdown{
+        font-size: 50px;
+        display: inline-block;
+        margin-right: 15px;
+      }
+      #time-left{
+        font-size: 20px;
+        display: inline-block;
+      }
+    </style>
+    <script src="https://cdn.firebase.com/js/client/2.3.0/firebase.js"></script>
+
+  </head>
+  <body>
+    <div id="header"> 
+      <div class="icon">
+        <a class="home-button" href="index.html"><img src="busstalker-white.png"></a>
+      </div>
+      <div class="information">
+        <div id="countdown"></div>
+        <div id="time-left"></div>
+      </div>
+      <div class="refresh">
+      <a class="refresh-button" href="tracker.html"><img src="refresh.png"></a>
+      </div>
+    </div>
+    <div id="map"></div>
+    <script type="text/javascript">
+
+    var lat_data, long_data; 
+    var already_init = false; 
+    var bus_location; 
+    var intervalCallback;
+
+    var latitude = new Firebase('https://bustalk.firebaseio.com/latitude');
+    var longitude = new Firebase('https://bustalk.firebaseio.com/longitude');
+    var message = new Firebase('https://bustalk.firebaseio.com/message');
+
+    function getTimeDistance(query) {
+      var dms = new google.maps.DistanceMatrixService();
+      dms.getDistanceMatrix(query, function(response, status) { 
+          if (status == 'OK') {
+            var distance = response.rows[0].elements[0].distance.text;
+            var timeleft = response.rows[0].elements[0].duration.text;
+            var countdown = parseFloat(timeleft.match(/[\d\.]+/));
+            var distleft = parseFloat(distance.match(/[\d\.]+/));
+            document.getElementById('countdown').innerHTML = countdown + " mins";
+            document.getElementById('time-left').innerHTML = distleft + " miles";
+            if (timeleft == '1 min' && distleft < 500) {
+              clearInterval(intervalCallback);
+              document.getElementById('countdown').innerHTML = "Approaching!";
+            }
+          }
+        }
+      );
+    }
+
+    function start2dest(startlat, startlong, destlat, destlong, desttitle) { 
+      var zoomfactor = parseInt(-28 * (startlat-destlat) + 11.43);
+      var middle = {lat: (destlat+startlat)/2, lng: (destlong+startlong)/2};
+      var new_map = new google.maps.Map(document.getElementById('map'), {
+        center: middle,
+        zoom: zoomfactor
+      });
+      var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(destlat, destlong),
+        map: new_map,
+        title: desttitle
+      });
+      var demo_marker = new google.maps.Marker({
+        position: new google.maps.LatLng(startlat, startlong),
+        map: new_map, 
+        icon: 'http://www.myrapid.com.my/sites/all/themes/myrapid/images/icon-bus-small.png'
+      });
+      var xmove = (destlat-startlat)/300;
+      var ymove = (destlong-startlong)/300;
+      var cur_lat = startlat;
+      var cur_long = startlong;
+      intervalCallback = setInterval(function(){
+        cur_lat+=xmove;
+        cur_long+=ymove;
+        var request = {
+          origins: [{lat: cur_lat, lng: cur_long}],
+          destinations: [{lat: destlat, lng: destlong}],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+        demo_marker.setPosition(new google.maps.LatLng(cur_lat, cur_long));
+        getTimeDistance(request);
+      }, 200);
+    }
+
+    function run_demo_rec(cur_lat, cur_long, destlat, destlong, xspeed, yspeed, demo_marker) {
+      if (xspeed == 0 && yspeed == 0) return false;  
+      var request = {
+        origins: [{lat: cur_lat, lng: cur_long}],
+        destinations: [{lat: destlat, lng: destlong}],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      };
+
+      demo_marker.setPosition(new google.maps.LatLng(cur_lat, cur_long));
+      getTimeDistance(request);
+      run_demo_rec(cur_lat, cur_long, destlat, destlong, xspeed, yspeed, demo_marker);
+    }
+
+    function demo() { 
+      start2dest(51.5923, -0.09123, 51.4931, -0.1486, 'Victoria Coach Station');
+    }
+    function demo1() { 
+      start2dest(53.3534, -6.3041, 53.3717, -6.2696, 'Dublin Botanical Gardens');
+    }
+    function demo2() { 
+      start2dest(13.3534, 9.3041, 13.3717, 9.2696, 'Somewhere in Nigeria');
+    }
+
+
+    function initMap(map_thing, latitude, longitude) { 
+      var map_thing = new google.maps.Map(document.getElementById('map'), {
+        center: new google.maps.LatLng(latitude, longitude),
+        zoom: 12
+      });
+      var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(51.4931, -0.1486), 
+        map: map_thing,
+        title: 'Victoria Coach Station'
+      });
+      bus_location = new google.maps.Marker({
+        position: new google.maps.LatLng(latitude, longitude), 
+        map: map_thing,
+        title: 'Current Location of Bus',
+        icon: 'http://www.myrapid.com.my/sites/all/themes/myrapid/images/icon-bus-small.png'
+      });
+    }
+
+    function update() { 
+      if (lat_data != null && long_data != null) {
+      bus_location.setPosition(new google.maps.LatLng(lat_data, long_data));
+      } else console.log("no more info");
+    }
+    // setInterval(update, 2000);
+
+    var initMapFromValues = function(key, value) {
+      if (key == 'latitude') lat_data = value; 
+      else if (key == 'longitude') long_data = value;
+      if (lat_data != null && long_data != null) { 
+        if (!already_init) {
+        var map;
+        initMap(map, parseFloat(lat_data), parseFloat(long_data));
+        }
+        else update(map, parseFloat(lat_data), parseFloat(long_data));
+      }
+      else console.log("sorry, no information available");
+    }
+
+    // latitude.on("value", function(snapshot) {
+    //   console.log(snapshot.val());
+    //   initMapFromValues('latitude', snapshot.val());
+    // }, function (errorObject) {
+    //   console.log("The read failed: " + errorObject.code);
+    // });
+
+    // longitude.on("value", function(snapshot) {
+    //   console.log(snapshot.val());
+    //   initMapFromValues('longitude', snapshot.val());
+    // }, function (errorObject) {
+    //   console.log("The read failed: " + errorObject.code);
+    // });
+
+    // message.on("value", function(snapshot) {
+    //   console.log(snapshot.val());
+    // }, function (errorObject) {
+    //   console.log("The read failed: " + errorObject.code);
+    // });
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDoyWZEB625VA9TIjrul1mzOLGpJneAH0&callback=demo1">
+    </script>
+  </body>
+</html>
