@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CoachTracker.iml" filepath="$PROJECT_DIR$/.idea/CoachTracker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/coachtest/app/src/androidTest/androidTest.iml" filepath="$PROJECT_DIR$/coachtest/app/src/androidTest/androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/coachtest/app/src/main/main.iml" filepath="$PROJECT_DIR$/coachtest/app/src/main/main.iml" />
     </modules>
   </component>
 </project>
+
